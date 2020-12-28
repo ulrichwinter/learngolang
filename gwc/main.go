@@ -9,7 +9,8 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"umw/wordcount"
+
+	"github.com/ulrichwinter/learngolang/wordcount"
 )
 
 func main() {
