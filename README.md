@@ -15,3 +15,5 @@ wordcount/wordcount.go: 84
 Total of 2 files: 186
 ``` 
 Assuming $GOPATH/bin is in your PATH.
+
+
