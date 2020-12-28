@@ -1,4 +1,4 @@
-package wordcount
+package countwords
 
 import (
 	"bufio"
@@ -11,7 +11,6 @@ func Countwords(in io.Reader) (int, error) {
 	var inword bool
 	var count int
 
-	//current := make([]byte, 1)
 	var current [1]byte
 
 	input := bufio.NewReaderSize(in, 8*1024)

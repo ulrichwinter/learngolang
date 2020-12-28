@@ -1,4 +1,4 @@
-// gwc counts words in the given files or in stdin
+// countwords counts words in the given files or in stdin
 // Usage:
 // gwc file1 file2 ... fileN
 // gwc (no args: count files in stdin)
@@ -10,14 +10,14 @@ import (
 	"log"
 	"os"
 
-	"github.com/ulrichwinter/learngolang/wordcount"
+	"github.com/ulrichwinter/learngolang/gwc/countwords"
 )
 
 func main() {
 
 	files := os.Args[1:]
 	if len(files) == 0 {
-		count, err := wordcount.Countwords(os.Stdin)
+		count, err := countwords.Countwords(os.Stdin)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -31,7 +31,7 @@ func main() {
 				continue
 			}
 
-			count, err := wordcount.Countwords(file)
+			count, err := countwords.Countwords(file)
 			if err != nil {
 				fmt.Printf("Error counting in file %s: %v", filename, err)
 				continue

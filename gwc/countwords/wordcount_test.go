@@ -1,4 +1,4 @@
-package wordcount_test
+package countwords_test
 
 import (
 	"io"
