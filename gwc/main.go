@@ -1,3 +1,8 @@
+// gwc counts words in the given files or in stdin
+// Usage:
+// gwc file1 file2 ... fileN
+// gwc (no args: count files in stdin)
+
 package main
 
 import (
