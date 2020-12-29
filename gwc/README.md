@@ -83,3 +83,28 @@ real 0m0.015s
 user 0m0.010s
 sys  0m0.004s
 ```
+
+## more benchmarks
+
+The current "mobydick.txt" benchmark file is about 6.5 kB large and fits completely into the currently used buffer of 8k.
+
+Benchmarks are not executed during a normal `go build` and have to be specified explicitly like here:
+```bash
+$ cd countwords/
+$ go test -bench=.
+goos: darwin
+goarch: amd64
+pkg: github.com/ulrichwinter/learngolang/gwc/countwords
+BenchmarkCountwordsMobyDick-8         	     163	   7428442 ns/op
+BenchmarkCountwordsLargefile_1K-8     	   43468	     28025 ns/op	  35.68 MB/s
+BenchmarkCountwordsLargefile_10K-8    	   10000	    110604 ns/op	  90.41 MB/s
+BenchmarkCountwordsLargefile_100K-8   	    1255	    941877 ns/op	 106.17 MB/s
+BenchmarkCountwordsLargefile_1M-8     	     129	   9223164 ns/op	 108.42 MB/s
+BenchmarkCountwordsLargefile_10M-8    	      12	  92148298 ns/op	 108.52 MB/s
+BenchmarkCountwordsLargefile_100M-8   	       2	 915957432 ns/op	 109.18 MB/s
+PASS
+ok  	github.com/ulrichwinter/learngolang/gwc/countwords	14.955s
+```
+
+Here a comparative benchmark using different file sizes has been added, which uses a file with random content generated using `base64 /dev/urandom | head -c $SIZE > file.txt`.
+The benchmark shows, that the throughput stabilizes around 100 MB/s for file sizes above 10kB.

@@ -1,8 +1,11 @@
 package countwords_test
 
 import (
+	"fmt"
 	"io"
+	"math/rand"
 	"os"
+	"os/exec"
 	"strings"
 	"testing"
 	"umw/wordcount"
@@ -33,7 +36,7 @@ func TestCountWords(t *testing.T) {
 }
 
 // benchmark using a file containing "moby dick" (see https://gist.githubusercontent.com/StevenClontz/4445774/raw/1722a289b665d940495645a5eaaad4da8e3ad4c7/mobydick.txt)
-func BenchmarkCountwords(b *testing.B) {
+func BenchmarkCountwordsMobyDick(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		file, err := os.Open("mobydick.txt")
 		if err != nil {
@@ -49,4 +52,62 @@ func BenchmarkCountwords(b *testing.B) {
 			b.Errorf("got wrong word count %d - want %d", got, 115314)
 		}
 	}
+}
+
+// benchmark using large files with random generated content
+
+func BenchmarkCountwordsLargefile_1K(b *testing.B) {
+	benchmarkCountwordsLargefile(b, 1_000)
+}
+
+func BenchmarkCountwordsLargefile_10K(b *testing.B) {
+	benchmarkCountwordsLargefile(b, 10_000)
+}
+
+func BenchmarkCountwordsLargefile_100K(b *testing.B) {
+	benchmarkCountwordsLargefile(b, 100_000)
+}
+
+func BenchmarkCountwordsLargefile_1M(b *testing.B) {
+	benchmarkCountwordsLargefile(b, 1_000_000)
+}
+
+func BenchmarkCountwordsLargefile_10M(b *testing.B) {
+	benchmarkCountwordsLargefile(b, 10_000_000)
+}
+
+func BenchmarkCountwordsLargefile_100M(b *testing.B) {
+	benchmarkCountwordsLargefile(b, 100_000_000)
+}
+
+func benchmarkCountwordsLargefile(b *testing.B, size int64) {
+	filename := generateTestFileWithSize(size)
+	defer os.Remove(filename)
+
+	b.SetBytes(size)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		file, err := os.Open(filename)
+		if err != nil {
+			b.Fatalf("cannot open file %q: %v", filename, err)
+		}
+		_, err = wordcount.Countwords(file)
+		file.Close()
+
+		if err != nil {
+			b.Errorf("got unexpected error %v", err)
+		}
+	}
+	b.StopTimer()
+}
+
+func generateTestFileWithSize(size int64) string {
+	// generate txt file with the given size:
+	// base64 /dev/urandom | head -c 10000000 > file.txt
+	filename := fmt.Sprintf("/tmp/benchfile-%d.txt", rand.Intn(1000))
+	err := exec.Command("/bin/bash", "-c", fmt.Sprintf("base64 /dev/urandom | head -c %d > %s", size, filename)).Run()
+	if err != nil {
+		os.Stderr.WriteString(err.Error())
+	}
+	return filename
 }
