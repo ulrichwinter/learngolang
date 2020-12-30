@@ -7,23 +7,21 @@ import (
 )
 
 // Countwords counts the words in its input
-func Countwords(in io.Reader) (int, error) {
+func Countwords(source io.Reader) (int, error) {
+	const bufferSize = 8 * 1024
 	var inword bool
 	var count int
 
-	var current [1]byte
-
-	input := bufio.NewReaderSize(in, 8*1024)
+	input := bufio.NewReaderSize(source, bufferSize)
 	for {
-		_, err := input.Read(current[:])
+		r, _, err := input.ReadRune()
 		if err == io.EOF {
 			break
 		}
 		if err != nil {
 			return 0, err
 		}
-
-		if !unicode.IsSpace(rune(current[0])) {
+		if !unicode.IsSpace(r) {
 			if !inword {
 				count++
 				inword = true

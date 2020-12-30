@@ -23,6 +23,10 @@ var tests = []struct {
 	{1, " eins "},
 	{2, "eins zwei"},
 	{3, "\tone\ttwo\t\n\t\tthree\n\n"},
+	{3, "one\ttwo\nthree"},
+	{2, "one\u00A0two"},   // NO-BREAK SPACE
+	{2, "one\u1680two"},   // OGHAM SPACE
+	{2, "two\u2028three"}, // Line separator
 }
 
 func TestCountWords(t *testing.T) {

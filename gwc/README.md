@@ -108,3 +108,45 @@ ok  	github.com/ulrichwinter/learngolang/gwc/countwords	14.955s
 
 Here a comparative benchmark using different file sizes has been added, which uses a file with random content generated using `base64 /dev/urandom | head -c $SIZE > file.txt`.
 The benchmark shows, that the throughput stabilizes around 100 MB/s for file sizes above 10kB.
+
+## Fixing multibyte errors accidentally improves performance
+
+The previous version read the input bytewise using `io.Reader.Read([]byte)`. 
+The byte was than converted to a rune and checked for whitespace using `unicode.IsSpace(rune)`.
+This obviously misses multi byte white space characters.
+
+After changing the implementation do read a rune at a time from the input reader using `bufio.Reader.ReadRune()` the performance also was improved by around 25% regarding the byte/s throughput for large files:
+
+Before:
+```bash
+$ go test -bench=.
+goos: darwin
+goarch: amd64
+pkg: github.com/ulrichwinter/learngolang/gwc/countwords
+BenchmarkCountwordsMobyDick-8         	     164	   7153355 ns/op
+BenchmarkCountwordsLargefile_1K-8     	   45661	     26665 ns/op	  37.50 MB/s
+BenchmarkCountwordsLargefile_10K-8    	    9600	    109167 ns/op	  91.60 MB/s
+BenchmarkCountwordsLargefile_100K-8   	    1255	    936369 ns/op	 106.80 MB/s
+BenchmarkCountwordsLargefile_1M-8     	     128	   9222763 ns/op	 108.43 MB/s
+BenchmarkCountwordsLargefile_10M-8    	      13	  92084036 ns/op	 108.60 MB/s
+BenchmarkCountwordsLargefile_100M-8   	       2	 922631872 ns/op	 108.39 MB/s
+PASS
+ok  	github.com/ulrichwinter/learngolang/gwc/countwords	14.662s
+```
+
+After:
+```bash
+$ go test -bench=.
+goos: darwin
+goarch: amd64
+pkg: github.com/ulrichwinter/learngolang/gwc/countwords
+BenchmarkCountwordsMobyDick-8         	     214	   5565818 ns/op
+BenchmarkCountwordsLargefile_1K-8     	   48391	     24138 ns/op	  41.43 MB/s
+BenchmarkCountwordsLargefile_10K-8    	   14089	     85313 ns/op	 117.22 MB/s
+BenchmarkCountwordsLargefile_100K-8   	    1712	    691615 ns/op	 144.59 MB/s
+BenchmarkCountwordsLargefile_1M-8     	     176	   6728695 ns/op	 148.62 MB/s
+BenchmarkCountwordsLargefile_10M-8    	      16	  67035026 ns/op	 149.18 MB/s
+BenchmarkCountwordsLargefile_100M-8   	       2	 728145192 ns/op	 137.34 MB/s
+PASS
+ok  	github.com/ulrichwinter/learngolang/gwc/countwords	14.643s
+```
