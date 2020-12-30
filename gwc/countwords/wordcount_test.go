@@ -8,7 +8,8 @@ import (
 	"os/exec"
 	"strings"
 	"testing"
-	"umw/wordcount"
+
+	"github.com/ulrichwinter/learngolang/gwc/countwords"
 )
 
 var tests = []struct {
@@ -28,7 +29,7 @@ func TestCountWords(t *testing.T) {
 	for _, test := range tests {
 		var content io.Reader
 		content = strings.NewReader(test.content)
-		got, _ := wordcount.Countwords(content)
+		got, _ := countwords.Countwords(content)
 		if got != test.words {
 			t.Errorf("want %d words, got %d: %q", test.words, got, test.content)
 		}
@@ -42,7 +43,7 @@ func BenchmarkCountwordsMobyDick(b *testing.B) {
 		if err != nil {
 			b.Fatalf("cannot open file \"mobidick.txt\": %v", err)
 		}
-		got, err := wordcount.Countwords(file)
+		got, err := countwords.Countwords(file)
 		file.Close()
 
 		if err != nil {
@@ -91,7 +92,7 @@ func benchmarkCountwordsLargefile(b *testing.B, size int64) {
 		if err != nil {
 			b.Fatalf("cannot open file %q: %v", filename, err)
 		}
-		_, err = wordcount.Countwords(file)
+		_, err = countwords.Countwords(file)
 		file.Close()
 
 		if err != nil {
